@@ -1,0 +1,365 @@
+<!DOCTYPE HTML>
+<!--
+	Minimaxing by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>STOCK PREDICTION</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+
+		<script type = "text/javascript">
+		var com = "AAPL";
+		var choice = "history";
+		var stockImage_url = "candlestick-sh-2015.html";
+		function UploadImage() {
+			com = document.getElementById('com_name').value;
+			choice = document.getElementById('time_scale').value;
+			stockImage_url = "candlestick-sh-2015.html?com="+com+"&choice="+choice;
+			// stid = document.getElementById('stockImage');
+			// stid.window.location.reload();
+			document.getElementById('stockImage').src = stockImage_url;
+			// document.getElementById('stockImage').contentWindow.location.reload(true);
+
+		}
+
+		var sql_op = 'lp';
+		function postRequest(strURL, sql_op, iteration) {
+	          var xmlHttp;
+	          if (window.XMLHttpRequest) { // Mozilla, Safari, ...
+	            var xmlHttp = new XMLHttpRequest();
+	          }else if (window.ActiveXObject) { // IE
+	            var xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+	          }
+	          if (sql_op == 'lp') {
+		          xmlHttp.open('POST', strURL, true);
+	          } else {
+		          xmlHttp.open('POST', strURL, true);	          	
+	          }
+	          xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	          xmlHttp.onreadystatechange = function() 
+	          {
+	            if (xmlHttp.readyState == 4) {
+	              updatepage(xmlHttp.responseText, sql_op, iteration);
+	            }
+	          }
+	          xmlHttp.send(strURL);
+	      }
+
+		function updatepage(str, sql_op, iteration){
+		          // document.getElementById(area).innerHTML = 
+		          //       "<font color='red' size='2'>" + str + "</font>";;
+		          console.log(str);
+		          switch(sql_op) {
+		          	case "init":
+		          		break;
+		          	case "lp":
+		          	case "hp":
+		          	case "ap":
+		          	case "np":
+		          		var msg = str.split(",");
+		          		console.log(msg);
+		          		var row = (iteration+1).toString();
+		          		var com_id = row+"_1";
+		          		var price_id = row+"_2";
+		          		var date_id = row+"_3";
+		          		document.getElementById(com_id).innerHTML = msg[0];
+		          		document.getElementById(price_id).innerHTML = msg[1];
+		          		document.getElementById(date_id).innerHTML = msg[2];
+		          		break;
+		          	case "la":
+		          		break;
+		          	case "login":
+		          		if (str == "-1")
+		          			document.getElementById("LoginStatus").innerHTML = "Fail: user not exists!";
+		          		else {
+		          			var pwd = document.getElementById("password").value;
+		          			if (str == pwd){
+			          			document.getElementById("LoginStatus").innerHTML = "Success";
+			          			window.location.href = "userProfile.html?usr="+iteration;
+		          			}
+			          		else
+			          			document.getElementById("LoginStatus").innerHTML = "Failed: wrong password!";
+		          		}
+		          		break;
+		          	case "reg":
+		          		if (str == "0")
+		          			document.getElementById("LoginStatus").innerHTML = "Success";
+		          		else if (str == "-1")
+		          			document.getElementById("LoginStatus").innerHTML = "Fail: user already exists!";
+		          		break;
+		          }
+		}
+
+		function init() {
+			sql_op = 'lp';
+			var init_url = "php/GetHistory.php";
+			postRequest(init_url, "init", 0);
+			init_url = "php/GetReal.php";
+			postRequest(init_url, "init", 0);
+
+			init_url = "php/userDB/CreateUserDB.php";
+			postRequest(init_url, "init", 0);
+			init_url = "php/userDB/Table.php";
+			postRequest(init_url, "init", 0);
+
+			init_url = "php/CreateDatabase.php";
+			postRequest(init_url, "init", 0);
+			init_url = "php/ImportData.php";
+			postRequest(init_url, "init", 0);
+			
+
+		}
+
+		function updateQuery() {
+			var comp = new Array("AAPL", "AMZN", "CCF", "COKE", "FB", "GOOG", "INTC", "MSFT", "ORCL", "YHOO");
+			var sql_ele = document.getElementById('Option');
+			if (sql_ele == null) {
+				sql_op = 'lp';
+			} else {
+				sql_op = sql_ele.value;
+			}
+			var sql_url;
+			switch(sql_op) {
+				case "lp":
+					for (i = 0; i<10; i++) {
+						sql_url = "./php/Getlow.php?com="+comp[i];
+						postRequest(sql_url, sql_op, i);
+					}
+					break;
+				case "hp":
+					for (i = 0; i<10; i++) {
+						sql_url = "./php/Gethigh.php?com="+comp[i];
+						postRequest(sql_url, sql_op, i);
+					}
+					break;
+				case "ap":
+					for (i = 0; i<10; i++) {
+						sql_url = "./php/Avgprice.php?com="+comp[i];
+						postRequest(sql_url, sql_op, i);
+					}
+					break;
+				case "np":
+					for (i = 0; i<10; i++) {
+						sql_url = "./php/Showlatest.php?com="+comp[i];
+						postRequest(sql_url, sql_op, i);
+					}
+					break;
+				case "la":
+					sql_url = "./php/Listlowcom.php";
+					postRequest(sql_url, sql_op, i);
+			}
+		}
+		function Login() {
+			var usr_name = document.getElementById("UserName").value;
+			var usr_pwd = document.getElementById("password").value;
+			var lg_url = "php/userDB/Getpwd.php?usr="+usr_name+"&pwd="+usr_pwd;
+			postRequest(lg_url, "login", usr_name);
+		}
+		function Register() {
+			var usr_name = document.getElementById("UserName").value;
+			var usr_pwd = document.getElementById("password").value;
+			var lg_url = "php/userDB/Register.php?usr="+usr_name+"&pwd="+usr_pwd;
+			postRequest(lg_url, "reg", 0);
+		}
+		init();
+		updateQuery();
+		</script>
+	</head>
+	<body>
+		<div id="page-wrapper">
+			<div id="header-wrapper">
+				<div class="container">
+					<div class="row">
+						<div class="12u">
+							<header id="header">
+								<h1><a href="index.html" id="logo">Stock Prediction</a></h1>
+								<nav id="nav">
+									<a href="index.html" class="current-page-item">Homepage</a>
+									<a href="userProfile.html">User's Profile</a>
+									<a href="chart.html">Chart</a>
+									<a href="aboutus.html">About us</a>
+								</nav>
+							</header>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="k" style = "background: #21202D">
+				<div class="container">
+					<IFRAME id = "stockImage" src="candlestick-sh-2015.html?com=AAPL&choice=history" width="100%" height="500" frameborder="0" scrolling="auto"></iframe></IFRAME>
+				</div>
+			</div>
+
+			<div id="main">
+				<div class="container">
+					<div class="row main-row">
+						<div class="6u 12u(mobile)">
+							<section>
+								<h2>Welcome</h2>
+								<p> <strong>Please Login in</strong><br>
+								All data used are from<a href="https://finance.yahoo.com/">Yahoo finance</a>. 
+								</p>
+								<form>
+ 								Username:
+								<input type="text" id="UserName">
+								<br>
+								<br>
+								Password:
+								<input type="password" id="password">
+								<br>
+								<br>
+								</form> 
+								<footer class="controls">
+									<a class="button" onclick="Login()">Login</a>
+									<a class="button" onclick="Register()">Register</a>
+								</footer>
+								Status: <p id="LoginStatus"></p>	
+							</section>
+						</div>
+						<div class="6u 12u(mobile)">
+							<section>
+								<h3>Select a stock</h3>
+										<form>
+										<select id = "com_name" stockName="Company" onchange ="UploadImage()">
+										<option value="AAPL">AAPL</option>
+										<option value="AMZN">AMZN</option>
+										<option value="CCF">CCF</option>
+										<option value="COKE">COKE</option>
+										<option value="FB">FB</option>
+										<option value="GOOG">GOOG</option>
+										<option value="INTC">INTC</option>
+										<option value="MSFT">MSFT</option>
+										<option value="ORCL">ORCL</option>
+										<option value="YHOO">YHOO</option>
+										</select>
+										</form><h3>Select time scale</h3>
+										<form>
+										<select id = "time_scale" choiceName="Choice" onchange ="UploadImage()">
+										<option value="history">One Year</option>
+										<option value="real">One Day</option>
+										</select>
+										</form>
+										
+										<head>
+										  <meta name="viewport" content="width=device-width, initial-scale=1">
+										  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+										  <script src="assets/js/filter.js"></script>
+										  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+										  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+										</head>
+											<body>
+											    <h3>Options:</h3>
+											    	<form>
+													<select id = "Option" choiceName="query" onchange="updateQuery()"><br>
+													<option value="lp" selected="selected">lowest price latest year</option>
+													<option value="hp">highest price latest year</option>
+													<option value="ap">average price latest year</option>
+													<option value="np">latest price</option>
+													<option value="la">companies have ave price less than lowest of others</option>
+													</select>
+													<script type="text/javascript">
+														document.getElementById("Option").value = "lp";
+													</script>
+												</form>
+												<br>
+											    Search: <input type="search" class="light-table-filter" data-table="order-table" placeholder="Company Name">
+										    
+											    <table class="order-table table">
+											        <thead>
+											            <tr>
+											                <th id="h_1">Company</th>
+											                <th id="h_2">Price</th>
+											                <th id="h_3">Date</th>
+											            </tr>
+											        </thead>
+											        <tbody>
+											            <tr>
+											                <td id="1_1">-</td>
+											                <td id="1_2">-</td>
+											                <td id="1_3">-</td>
+											            </tr>
+											            <tr>
+											                <td id="2_1">-</td>
+											                <td id="2_2">-</td>
+											                <td id="2_3">-</td>
+											            </tr>
+											            <tr>
+											                <td id="3_1">-</td>
+											                <td id="3_2">-</td>
+											                <td id="3_3">-</td>
+											            </tr>
+											            <tr>
+											                <td id="4_1">-</td>
+											                <td id="4_2">-</td>
+											                <td id="4_3">-</td>
+											            </tr>
+											            <tr>
+											                <td id="5_1">-</td>
+											                <td id="5_2">-</td>
+											                <td id="5_3">-</td>
+											            </tr>
+											            <tr>
+											                <td id="6_1">-</td>
+											                <td id="6_2">-</td>
+											                <td id="6_3">-</td>
+											            </tr>
+											            <tr>
+											                <td id="7_1">-</td>
+											                <td id="7_2">-</td>
+											                <td id="7_3">-</td>
+											            </tr>
+											            <tr>
+											                <td id="8_1">-</td>
+											                <td id="8_2">-</td>
+											                <td id="8_3">-</td>
+											            </tr>
+											            <tr>
+											                <td id="9_1">-</td>
+											                <td id="9_2">-</td>
+											                <td id="9_3">-</td>
+											            </tr><tr>
+											                <td id="10_1">-</td>
+											                <td id="10_2">-</td>
+											                <td id="10_3">-</td>
+											            </tr>
+											        </tbody>
+											    </table>
+											</section>
+										</body>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		<div id="footer-wrapper">
+				<div class="container">
+					<div class="row">
+						<div class="12u">
+							<div id="copyright">
+								&copy; Untitled. All rights reserved. | Design:  <a href="aboutus.html">GROUP 4</a>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/skel-viewport.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="assets/js/main.js"></script>
+
+
+	</body>
+</html>

@@ -1,0 +1,6 @@
+Company YHOO: Lowest Price in the latest one year is 35.049999 on 2016-06-27
+Company GOOG: Lowest Price in the latest one year is 663.283997 on 2016-06-27
+Company MSFT: Lowest Price in the latest one year is 48.040001 on 2016-06-27
+Company FB: Lowest Price in the latest one year is 106.309998 on 2016-04-27
+Company CCF: Lowest Price in the latest one year is 54.250000 on 2016-05-04
+Company CCF: Lowest Price in the latest one year is 54.250000 on 2016-04-27

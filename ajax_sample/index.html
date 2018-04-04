@@ -1,0 +1,140 @@
+<html>
+  <head>
+  <title>Simple Ajax Example</title>
+  <script language="Javascript">
+    function postRequest(strURL, area) {
+      var xmlHttp;
+      if (window.XMLHttpRequest) { // Mozilla, Safari, ...
+        var xmlHttp = new XMLHttpRequest();
+      }else if (window.ActiveXObject) { // IE
+        var xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+      }
+      xmlHttp.open('POST', strURL, true);
+      xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      xmlHttp.onreadystatechange = function() 
+      {
+        if (xmlHttp.readyState == 4) {
+          updatepage(xmlHttp.responseText, area);
+        }
+      }
+      xmlHttp.send(strURL);
+    }
+
+    function updatepage(str, area){
+      document.getElementById(area).innerHTML = 
+            "<font color='red' size='2'>" + str + "</font>";;
+    }
+
+    function SayHello(){
+      var usr=window.document.f1.username.value;
+      var rnd = Math.random();
+      var url="predict.php?id="+rnd +"&usr="+usr;
+      postRequest(url, "result");
+    }
+
+    function LoadData(){
+      var url = "getReal.php";
+      postRequest(url, "load_result");
+      url = "getHistory.php";
+      postRequest(url, "load_result");
+      url = "CreateDatabase.php";
+      postRequest(url, "load_result");
+      url = "ImportData.php";
+      postRequest(url, "load_result");
+    }
+
+    function GetLow() {
+      var url = "Getlow.php";
+      postRequest(url, "low_result");
+    }
+    function GetHigh() {
+      var url = "Gethigh.php";
+      postRequest(url, "high_result");
+    }
+
+    function GetAve() {
+      var url = "Avgprice.php";
+      postRequest(url, "ave_result");
+    }
+
+    function GetLat() {
+      var url = "Showlatest.php";
+      postRequest(url, "lat_result");
+    }
+    function ListLow() {
+      var url = "Listlowcom.php";
+      postRequest(url, "list_result");
+    }
+  </script>
+  </head>
+  
+  <body>
+   <h1 align="center"><font color="#000080">Short Term Prediction</font></h1>
+   <p  align="center"><font color="#000080">Enter Company and press on
+   "Predict"</font></p>
+ <!-- SHORT TERM -->
+ <form name="f1">
+       <p align="center"><font color="#000080">&nbsp;
+		Enter your company: <input type="text" name="username" id="username">
+		<input value="Predict" type="button" 
+       onclick='JavaScript:SayHello()' name="showdate"></font></p>
+       <div id="result" align="center"></div>
+     </form>
+ <div id=result></div>
+
+<!-- SQL QUERY -->
+ <form name = 'f2'>
+<p align = "center">&nbsp;
+      <input value="Load data" type="button" 
+       onclick='JavaScript:LoadData()' name="loaddate"></p>
+<div id="load_result" align="center"></div>
+</form>
+<div id = load_result></div>
+
+<form name = 'f3'>      
+<p align = "center">&nbsp;
+      get the lowest stock price for any company in the latest one year:
+      <input value="Get low" type="button" 
+       onclick='JavaScript:GetLow()' name="get low"></p>
+      <div id="low_result" align="center"></div>
+</form>
+<div id = low_result></div>
+
+<form name = 'f4'>      
+<p align = "center">&nbsp;
+      get the highest stock price for any company in the latest one year:
+      <input value="Get high" type="button" 
+       onclick='JavaScript:GetHigh()' name="get high"></p>
+      <div id="high_result" align="center"></div>
+</form>
+<div id = high_result></div>
+
+<form name = 'f5'>      
+<p align = "center">&nbsp;
+      get the average stock price for any company in the latest one year:
+      <input value="Get average" type="button" 
+       onclick='JavaScript:GetAve()' name="get ave"></p>
+      <div id="ave_result" align="center"></div>
+</form>
+<div id = ave_result></div>
+
+<form name = 'f5'>      
+<p align = "center">&nbsp;
+      Show the list of all companies in the database along with their latest stock price (real time latest stock price):
+      <input value="Get latest" type="button" 
+       onclick='JavaScript:GetLat()' name="get lat"></p>
+      <div id="lat_result" align="center"></div>
+</form>
+<div id = lat_result></div>
+
+<form name = 'f6'>      
+<p align = "center">&nbsp;
+      List the ids of companies along with their name who have the average stock price lesser than the lowest of any of the Selected Company in the latest one year:
+      <input value="List low" type="button" 
+       onclick='JavaScript:ListLow()' name="list low"></p>
+      <div id="list_result" align="center"></div>
+</form>
+<div id = list_result></div>
+
+</body>
+</html>

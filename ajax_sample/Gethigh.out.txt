@@ -1,0 +1,5 @@
+Company YHOO: Highest Price in the last ten days is 47.880001 on 2017-04-19
+Company GOOG: Highest Price in the last ten days is 842.450012 on 2017-04-05
+Company MSFT: Highest Price in the last ten days is 66.349998 on 2017-04-05
+Company FB: Highest Price in the last ten days is 143.440002 on 2017-04-05
+Company CCF: Highest Price in the last ten days is 98.800003 on 2017-04-18

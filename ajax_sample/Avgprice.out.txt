@@ -1,0 +1,5 @@
+Company YHOO: Average Price in the latest one year is 41.3605157659
+Company GOOG: Average Price in the latest one year is 772.8799208413
+Company MSFT: Average Price in the latest one year is 58.6055157976
+Company FB: Average Price in the latest one year is 125.3276188929
+Company CCF: Average Price in the latest one year is 73.3313493492

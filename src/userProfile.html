@@ -1,0 +1,348 @@
+<!DOCTYPE HTML>
+<!--
+	Minimaxing by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>UserProfile</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<script src="assets/js/filter.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+	    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	    <script type="text/javascript">
+	    	var cur_url = document.location.toString();
+	    	var url_split = cur_url.split("=");
+	    	var usr = url_split[1];
+	    	function postRequest(strURL, sql_op, iteration) {
+	          var xmlHttp;
+	          if (window.XMLHttpRequest) { // Mozilla, Safari, ...
+	            var xmlHttp = new XMLHttpRequest();
+	          }else if (window.ActiveXObject) { // IE
+	            var xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+	          }
+	          // if (sql_op == 'lp') {
+		         //  xmlHttp.open('POST', strURL, true);
+	          // } else {
+		          xmlHttp.open('POST', strURL, false);	          	
+	          // }
+	          xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	          xmlHttp.onreadystatechange = function() 
+	          {
+	            if (xmlHttp.readyState == 4) {
+	              updatepage(xmlHttp.responseText, sql_op, iteration);
+	            }
+	          }
+	          xmlHttp.send(strURL);
+	      }
+
+		function updatepage(str, sql_op, iteration){
+			console.log(str);
+			switch(sql_op){
+				case "adif":
+					break;
+				case "gtif":
+					var data = str.split(",");
+					var id1 = (iteration+1).toString()+"_2";
+					var id2 = (iteration+1).toString()+"_3";
+					document.getElementById(id1).innerHTML = data[0];
+					var curPrice_str  = data[1];
+					document.getElementById(id2).innerHTML = data[1];
+					var curPrice = Number(curPrice_str);
+					var buyPrice = Number(data[2]);
+					var volume = Number(data[0]);
+					var curEar = volume * (curPrice - buyPrice);
+					var id3 = (iteration+1).toString()+"_4";
+					document.getElementById(id3).innerHTML = curEar.toString();
+					break;
+				case "gtcp":
+					var id4 = (iteration+1).toString()+"_3";
+					document.getElementById(id4).innerHTML = str.toString();
+					break;
+				case "gtrp":
+					var id1 = (iteration+1).toString()+"_5";
+					document.getElementById(id1).innerHTML = str;
+					break;
+			}
+		}
+		function SaveInfo(iteration, comp) {
+			var id1 = "i"+iteration.toString()+"_8";
+			var id2 = "i"+iteration.toString()+"_9";
+			var actPrice = document.getElementById(id1).value;
+			var actVolume = document.getElementById(id2).value;
+			var id_cv = iteration.toString()+"_2";
+			var id_ce = iteration.toString()+"_3";
+
+			var cv_str = document.getElementById(id_cv).innerHTML;
+			var ce_str = document.getElementById(id_ce).innerHTML;
+			var currentVol = Number(cv_str);
+			var currentEarn = Number(ce_str);
+
+			var act_id = "s"+iteration.toString();
+			var act = document.getElementById(act_id).value;
+			var newVolume = 0;
+			actVolume = Number(actVolume);
+			if (act == "buy") {
+				newVolume = currentVol + actVolume;
+				php_url = "php/userDB/Addinfo.php?usr="+usr+"&com="+comp+"&vol="+newVolume.toString()+"&price="+actPrice.toString();
+			} else {
+				newVolume = currentVol - actVolume;
+				php_url = "php/userDB/Addinfo.php?usr="+usr+"&com="+comp+"&vol="+newVolume.toString()+"&price="+currentVol.toString();
+			}
+			console.log(newVolume);
+			console.log(actPrice);
+			php_url = "php/userDB/Addinfo.php?usr="+usr+"&com="+comp+"&vol="+newVolume.toString()+"&price="+actPrice;
+			postRequest(php_url, "adif", iteration);
+			window.location.reload();
+		}
+		function GetInfo() {
+			var coms = new Array('AAPL', 'AMZN', 'CCF', 'COKE', 'FB', 'GOOG', 'INTC', 'MSFT', 'ORCL', 'YHOO');
+			for (i = 0; i<10; i++) {
+				// php_url = "php/getCurrent.php?com="+coms[i];
+				// postRequest(php_url, "gtcp",i);
+				php_url = "php/userDB/Getinfo.php?usr="+usr+"&com="+coms[i];
+				postRequest(php_url, "gtif", i);
+				php_url = "php/predict.php?usr="+coms[i];
+				postRequest(php_url, "gtrp",i);
+				var id2 = (i+1).toString()+"_3";
+				var curPrice_str = document.getElementById(id2).innerHTML;
+				var curPrice = Number(curPrice_str);
+				var id3 = (i+1).toString()+"_5";
+				var prePrice_str = document.getElementById(id2).innerHTML;
+				var prePrice  = Number(prePrice_str);
+				// var percent = (prePrice - curPrice)*1000/curPrice;
+				var percent = Math.random();
+				var rec;
+				console.log(percent);
+				if (percent>0.4 && percent<0.6) {
+					rec = "HOLD";
+				} else if(percent>=0.6){
+					rec = "BUY";
+				} else {
+					rec = "SELL";
+				}
+				id4 = (i+1).toString()+"_6";
+				document.getElementById(id4).innerHTML = rec;
+			}
+		}
+		// window.onload = GetInfo();
+	    </script>
+	</head>
+	<body>
+		<div id="page-wrapper">
+			<div id="header-wrapper">
+				<div class="container">
+					<div class="row">
+						<div class="12u">
+
+							<header id="header">
+								<h1><a href="index.html" id="logo">Stock Prediction</a></h1>
+								<nav id="nav">
+									<a href="index.html">Homepage</a>
+									<a href="userProflie.html" class="current-page-item">User's Profile</a>
+									<a href="chart.html">Chart</a>
+									<a href="aboutus.html">About us</a>
+								</nav>
+							</header>
+
+						</div>
+					</div>
+				</div>
+			</div>
+										
+											<div class="container">
+											    <h2>Search</h2>
+
+											    <input type="search" class="light-table-filter" data-table="order-table" placeholder="Filter">
+
+											    <table class="order-table table">
+											        <thead>
+											            <tr>
+											            	<th>Company</th>
+											                <th>Holding Volume</th>
+											                <th>Current Price</th>
+											                <th>Current Earning</th>
+											                <th>Perdicted Price</th>
+											                <th>Recommendation</th>
+											                <th>BUY/SELL</th>
+											                <th>Action Price</th>
+											                <th>Action Volume</th>
+											            </tr>
+											        </thead>
+											        <tbody>
+											            <tr>
+											                <td id="1_1">AAPL</td>
+											                <td id="1_2"></td>
+											                <td id="1_3"></td>
+											                <td id="1_4"></td>
+											                <td id="1_5"></td>
+											                <td id="1_6"></td>
+											                <td id="1_7"><select id="s1">
+											                	<option value="buy">BUY</option>
+											                	<option value="sell">SELL</option>
+											                </select></td>
+											                <td id="1_8"><input type="text" id="i1_8" size="6"></td>
+											                <td id="1_9"><input type="text" id="i1_9" size="6"></td>
+											                <td><button onclick="SaveInfo(1, 'AAPL')">submit</button></td>
+											            </tr>
+											            <tr>
+											                <td id="2_1">AMAZ</td>
+											                <td id="2_2"></td>
+											                <td id="2_3"></td>
+											                <td id="2_4"></td>
+											                <td id="2_5"></td>
+											                <td id="2_6"></td>
+											                <td id="2_7"><select id="s2">
+											                	<option value="buy">BUY</option>
+											                	<option value="sell">SELL</option>
+											                </select></td>
+											                <td id="2_8"><input type="text" id="i2_8" size="6"></td>
+											                <td id="2_9"><input type="text" id="i2_9" size="6"></td>
+											                <td><button onclick="SaveInfo(2, 'AMAZ')">submit</button></td>
+											            </tr>
+											            <tr>
+											                <td id="3_1">CCF</td>
+											                <td id="3_2"></td>
+											                <td id="3_3"></td>
+											                <td id="3_4"></td>
+											                <td id="3_5"></td>
+											                <td id="3_6"></td>
+											                <td id="3_7"><select id="s3">
+											                	<option value="buy">BUY</option>
+											                	<option value="sell">SELL</option>
+											                </select></td>
+											                <td id="3_8"><input type="text" id="i3_8" size="6"></td>
+											                <td id="3_9"><input type="text" id="i3_9" size="6"></td>
+											                <td><button onclick="SaveInfo(3, 'CCF')">submit</button></td>
+											            </tr>
+											            <tr>
+											                <td id="4_1">COKE</td>
+											                <td id="4_2"></td>
+											                <td id="4_3"></td>
+											                <td id="4_4"></td>
+											                <td id="4_5"></td>
+											                <td id="4_6"></td>
+											                <td id="4_7"><select id="s4">
+											                	<option value="buy">BUY</option>
+											                	<option value="sell">SELL</option>
+											                </select></td>
+											                <td id="4_8"><input type="text" id="i4_8" size="6"></td>
+											                <td id="4_9"><input type="text" id="i4_9" size="6"></td>
+											                <td><button onclick="SaveInfo(4, 'COKE')">submit</button></td>
+											            </tr>
+											            <tr>
+											                <td id="5_1">FB</td>
+											                <td id="5_2"></td>
+											                <td id="5_3"></td>
+											                <td id="5_4"></td>
+											                <td id="5_5"></td>
+											                <td id="5_6"></td>
+											                <td id="5_7"><select id="s5">
+											                	<option value="buy">BUY</option>
+											                	<option value="sell">SELL</option>
+											                </select></td>
+											                <td id="5_8"><input type="text" id="i5_8" size="6"></td>
+											                <td id="5_9"><input type="text" id="i5_9" size="6"></td>
+											                <td><button onclick="SaveInfo(5, 'FB')">submit</button></td>
+											            </tr>
+											            <tr>
+											                <td id="6_1">GOOG</td>
+											                <td id="6_2"></td>
+											                <td id="6_3"></td>
+											                <td id="6_4"></td>
+											                <td id="6_5"></td>
+											                <td id="6_6"></td>
+											                <td id="6_7"><select id="s6">
+											                	<option value="buy">BUY</option>
+											                	<option value="sell">SELL</option>
+											                </select></td>
+											                <td id="6_8"><input type="text" id="i6_8" size="6"></td>
+											                <td id="6_9"><input type="text" id="i6_9" size="6"></td>
+											                <td><button onclick="SaveInfo(6, 'GOOG')">submit</button></td>
+											            </tr>
+											            <tr>
+											                <td id="7_1">INTC</td>
+											                <td id="7_2"></td>
+											                <td id="7_3"></td>
+											                <td id="7_4"></td>
+											                <td id="7_5"></td>
+											                <td id="7_6"></td>
+											                <td id="7_7"><select id="s7">
+											                	<option value="buy">BUY</option>
+											                	<option value="sell">SELL</option>
+											                </select></td>
+											                <td id="7_8"><input type="text" id="i7_8" size="6"></td>
+											                <td id="7_9"><input type="text" id="i7_9" size="6"></td>
+											                <td><button onclick="SaveInfo(7, 'INTC')">submit</button></td>
+											            </tr>
+											            <tr>
+											                <td id="8_1">MSFT</td>
+											                <td id="8_2"></td>
+											                <td id="8_3"></td>
+											                <td id="8_4"></td>
+											                <td id="8_5"></td>
+											                <td id="8_6"></td>
+											                <td id="8_7"><select id="s8">
+											                	<option value="buy">BUY</option>
+											                	<option value="sell">SELL</option>
+											                </select></td>
+											                <td id="8_8"><input type="text" id="i8_8" size="6"></td>
+											                <td id="8_9"><input type="text" id="i8_9" size="6"></td>
+											                <td><button onclick="SaveInfo(8, 'MSFT')">submit</button></td>
+											            </tr>
+											            <tr>
+											                <td id="9_1">ORCL</td>
+											                <td id="9_2"></td>
+											                <td id="9_3"></td>
+											                <td id="9_4"></td>
+											                <td id="9_5"></td>
+											                <td id="9_6"></td>
+											                <td id="9_7"><select id="s9">
+											                	<option value="buy">BUY</option>
+											                	<option value="sell">SELL</option>
+											                </select></td>
+											                <td id="9_8"><input type="text" id="i9_8" size="6"></td>
+											                <td id="9_9"><input type="text" id="i9_9" size="6"></td>
+											                <td><button onclick="SaveInfo(9, 'ORCL')">submit</button></td>
+											            </tr>
+											            <tr>
+											                <td id="10_1">YHOO</td>
+											                <td id="10_2"></td>
+											                <td id="10_3"></td>
+											                <td id="10_4"></td>
+											                <td id="10_5"></td>
+											                <td id="10_6"></td>
+											                <td id="10_7"><select id="s10">
+											                	<option value="buy">BUY</option>
+											                	<option value="sell">SELL</option>
+											                </select></td>
+											                <td id="10_8"><input type="text" id="i10_8" size="6"></td>
+											                <td id="10_9"><input type="text" id="i10_9" size="6"></td>
+											                <td><button onclick="SaveInfo(10,'YHOO')">submit</button></td>
+											            </tr>
+											        </tbody>
+											    </table>
+											</section>
+											<script type="text/javascript">GetInfo();</script>
+		</div>
+		<div id="footer-wrapper">
+						<div class="container">
+							<div class="row">
+								<div class="12u">
+									<div id="copyright">
+										&copy; Untitled. All rights reserved. | Design: <a href="aboutus.html">GROUP 4</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+	</body>
+</html>

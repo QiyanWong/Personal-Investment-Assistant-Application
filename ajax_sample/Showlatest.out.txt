@@ -1,0 +1,5 @@
+Company YHOO: Latest Price in Real_Data is 47.000000
+Company GOOG: Latest Price in Real_Data is 838.210000
+Company MSFT: Latest Price in Real_Data is 65.040000
+Company FB: Latest Price in Real_Data is 142.270000
+Company CCF: Latest Price in Real_Data is 97.550000
